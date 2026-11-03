@@ -1,0 +1,217 @@
+import java.util.Scanner;
+
+public class UserInterface {
+    private static int currentFloor=0;
+    private static String serverUrl = "http://localhost:8080";
+    private static final int MIN_FLOOR = 1;
+    private static final int MAX_FLOOR = 200;
+
+    public static void main(String[]args) {
+        parseCommandLineArguments(args);
+        System.out.println("=== Διεπαφή Χρήστη Ανελκυστήρα ===");
+        System.out.println("Τρέχων όροφος: " + currentFloor);
+        System.out.println("Σύνδεση με τον διακομιστή: " + serverUrl);
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Πληκτρολογήστε όροφο προορισμού ή 'exit' για έξοδο: ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Έξοδος από τη διεπαφή χρήστη.");
+                break;
+            }
+
+            try {
+                int destinationFloor = Integer.parseInt(input);
+
+                
+                if (destinationFloor == currentFloor) {
+                    System.out.println(" Βρίσκεστε ήδη στον όροφο " + currentFloor);
+                    continue;
+                }
+
+               if (!isValidFloor(destinationFloor)) {
+                    continue;
+                }
+
+                System.out.println("-> Αποστολή αιτήματος από τον όροφο " + currentFloor + " στον όροφο " + destinationFloor + "..."); 
+                 }        
+                catch (NumberFormatException e) {
+                    System.out.println(" Σφάλμα: Παρακαλώ εισάγετε έναν έγκυρο αριθμό ορόφου.");
+                }
+
+        scanner.close();
+        }
+        private static void parseCommandLineArguments(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--floor=")) {
+                try {
+                    currentFloor = Integer.parseInt(arg.substring(8));
+                } catch (NumberFormatException e) {
+                    System.err.println("⚠️ Μη έγκυρος όροφος στις παραμέτρους. Χρήση προεπιλογής (0).");
+                }
+            } else if (arg.startsWith("--server=")) {
+                serverUrl = arg.substring(9);
+            }
+        }
+    }
+}   
+private static boolean isValidFloor(int floor) {
+        if (floor < MIN_FLOOR || floor > MAX_FLOOR) {
+            System.out.println(" Σφάλμα: Ο όροφος πρέπει να είναι μεταξύ " + MIN_FLOOR + " και " + MAX_FLOOR + ".");
+            return false;
+        }
+        return true;
+    }
+
+
+ import java.util.Scanner;
+import java.util.ArrayList;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.OutputStream;
+
+public class UserInterface {
+    private static int currentFloor=0;
+    private static String serverUrl = "http://localhost:8080";
+    private static final int MIN_FLOOR = 1;
+    private static final int MAX_FLOOR = 200;
+
+    public static void main(String[]args) {
+        parseCommandLineArguments(args);
+        System.out.println("=== Διεπαφή Χρήστη Ανελκυστήρα ===");
+        System.out.println("Τρέχων όροφος: " + currentFloor);
+        System.out.println("Σύνδεση με τον διακομιστή: " + serverUrl);
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Πληκτρολογήστε όροφο προορισμού ή 'exit' για έξοδο: ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Έξοδος από τη διεπαφή χρήστη.");
+                break;
+            }
+
+            try {
+                int destinationFloor = Integer.parseInt(input);
+
+                
+                if (destinationFloor == currentFloor) {
+                    System.out.println(" Βρίσκεστε ήδη στον όροφο " + currentFloor);
+                    continue;
+                }
+
+               if (!isValidFloor(destinationFloor)) {
+                    continue;
+                }
+
+                System.out.println("-> Αποστολή αιτήματος από τον όροφο " + currentFloor + " στον όροφο " + destinationFloor + "..."); 
+                moveElevator(destinationFloor);
+                 }        
+                catch (NumberFormatException e) {
+                    System.out.println(" Σφάλμα: Παρακαλώ εισάγετε έναν έγκυρο αριθμό ορόφου.");
+                }
+        }
+        scanner.close();
+    }
+
+    private static void parseCommandLineArguments(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--floor=")) {
+                try {
+                    currentFloor = Integer.parseInt(arg.substring(8));
+                } catch (NumberFormatException e) {
+                    System.err.println("⚠️ Μη έγκυρος όροφος στις παραμέτρους. Χρήση προεπιλογής (0).");
+                }
+            } else if (arg.startsWith("--server=")) {
+                serverUrl = arg.substring(9);
+            }
+        }
+    }
+
+    private static boolean isValidFloor(int floor) {
+        if (floor < MIN_FLOOR || floor > MAX_FLOOR) {
+            System.out.println(" Σφάλμα: Ο όροφος πρέπει να είναι μεταξύ " + MIN_FLOOR + " και " + MAX_FLOOR + ".");
+            return false;
+        }
+        return true;
+    }
+
+    private static String elevatorId = "A";
+    private static String status = "IDLE";
+    private static ArrayList<Integer> stops = new ArrayList<>();
+
+    private static void moveElevator(int destinationFloor) {
+        if (!stops.contains(destinationFloor)) {
+            stops.add(destinationFloor);
+        }
+
+        sendRequestToServer(destinationFloor);
+
+        while (!stops.isEmpty()) {
+            int nextFloor = stops.get(0);
+
+            while (currentFloor != nextFloor) {
+                if (currentFloor < nextFloor) {
+                    status = "MOVING_UP";
+                    currentFloor++;
+                } else {
+                    status = "MOVING_DOWN";
+                    currentFloor--;
+                }
+                showStatus();
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            stops.remove(0);
+            openAndCloseDoors();
+        }
+    }
+
+    private static void openAndCloseDoors() {
+        status = "DOORS_OPEN";
+        System.out.println("-> Ο ανελκυστήρας " + elevatorId + " έφτασε στον όροφο " + currentFloor);
+        System.out.println("-> Άνοιγμα θυρών...");
+        showStatus();
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("-> Κλείσιμο θυρών.");
+        status = "IDLE";
+        showStatus();
+    }
+
+    private static void showStatus() {
+        System.out.println("Ανελκυστήρας " + elevatorId + " | Κατάσταση: " + status 
+                + " | Όροφος: " + currentFloor + " | Επόμενες στάσεις: " + stops);
+    }
+
+    private static void sendRequestToServer(int destinationFloor) {
+        try {
+            URL url = new URL(serverUrl + "/elevator");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+
+            String data = "elevator=" + elevatorId + "&to=" + destinationFloor;
+            OutputStream os = conn.getOutputStream();
+            os.write(data.getBytes());
+            os.flush();
+            os.close();
+
+            int responseCode = conn.getResponseCode();
+            System.out.println("-> Απάντηση διακομιστή: " + responseCode);
+        } catch (Exception e) {
+            System.out.println(" Σφάλμα σύνδεσης με τον διακομιστή. Τοπική κίνηση ανελκυστήρα.");
+        }
+    }
+}   
