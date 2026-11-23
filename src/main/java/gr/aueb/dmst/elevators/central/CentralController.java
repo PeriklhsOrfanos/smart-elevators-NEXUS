@@ -34,7 +34,7 @@ public class CentralController {
 
         this.numberOfElevators = elevators;
         this.numberOfFloors = floors;
-        this.dispatchAlgorithm = new DispatchAlgorithm(elevators);
+        this.dispatchAlgorithm = new DispatchAlgorithm(elevators, floors);
     }
 
     public static void main(String[] args) {

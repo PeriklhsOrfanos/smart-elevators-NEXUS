@@ -8,7 +8,7 @@ class DispatchAlgorithmTest {
 
     @Test
     void selectsClosestElevator() {
-        DispatchAlgorithm algorithm = new DispatchAlgorithm(4);
+        DispatchAlgorithm algorithm = new DispatchAlgorithm(4, 10);
 
         algorithm.updateElevatorFloor('A', 1);
         algorithm.updateElevatorFloor('B', 4);
@@ -22,7 +22,7 @@ class DispatchAlgorithmTest {
 
     @Test
     void selectsFirstElevatorOnTie() {
-        DispatchAlgorithm algorithm = new DispatchAlgorithm(3);
+        DispatchAlgorithm algorithm = new DispatchAlgorithm(3, 10);
 
         String result = algorithm.assignElevator(5);
 
@@ -31,7 +31,7 @@ class DispatchAlgorithmTest {
 
     @Test
     void rejectsInvalidElevatorId() {
-        DispatchAlgorithm algorithm = new DispatchAlgorithm(3);
+        DispatchAlgorithm algorithm = new DispatchAlgorithm(3, 10);
 
         assertThrows(
             IllegalArgumentException.class,
@@ -43,7 +43,27 @@ class DispatchAlgorithmTest {
     void rejectsInvalidNumberOfElevators() {
         assertThrows(
             IllegalArgumentException.class,
-            () -> new DispatchAlgorithm(1)
+            () -> new DispatchAlgorithm(1, 10)
+        );
+    }
+
+    @Test
+    void rejectsFloorBelowMinimum() {
+        DispatchAlgorithm algorithm = new DispatchAlgorithm(4, 10);
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> algorithm.updateElevatorFloor('A', 0)
+        );
+    }
+
+    @Test
+    void rejectsFloorAboveMaximum() {
+        DispatchAlgorithm algorithm = new DispatchAlgorithm(4, 10);
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> algorithm.updateElevatorFloor('B', 11)
         );
     }
 }
