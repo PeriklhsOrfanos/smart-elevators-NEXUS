@@ -94,6 +94,28 @@ private static int[] defaultElevatorPorts(int elevators) {
     return ports;
 }
 
+
+public static void main(String[] args) {
+    try {
+        int elevators = args.length > 0
+            ? Integer.parseInt(args[0]) : 4;
+
+        int floors = args.length > 1
+            ? Integer.parseInt(args[1]) : 10;
+
+        CentralController controller =
+            new CentralController(elevators, floors);
+
+        controller.start();
+
+    } catch (IllegalArgumentException e) {
+        System.err.println(
+            "Configuration error: " + e.getMessage()
+        );
+    }
+}
+
+
 public void start() {
     start(8080);
 }
