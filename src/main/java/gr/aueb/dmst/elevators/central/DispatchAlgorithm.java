@@ -54,6 +54,50 @@ public class DispatchAlgorithm {
         return String.valueOf((char) ('A' + bestElevator));
     }
 
+
+public String assignElevator(
+        int requestedFloor,
+        boolean[] available) {
+
+    if (requestedFloor < 1 || requestedFloor > numberOfFloors) {
+        throw new IllegalArgumentException("Invalid requested floor");
+    }
+
+    if (available == null ||
+            available.length != elevatorFloors.length) {
+        throw new IllegalArgumentException(
+            "Invalid availability array"
+        );
+    }
+
+    int bestElevator = -1;
+    int shortestDistance = Integer.MAX_VALUE;
+
+    for (int i = 0; i < elevatorFloors.length; i++) {
+
+        if (!available[i]) {
+            continue;
+        }
+
+        int distance =
+            Math.abs(elevatorFloors[i] - requestedFloor);
+
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            bestElevator = i;
+        }
+    }
+
+    if (bestElevator == -1) {
+        throw new IllegalStateException(
+            "No available elevators"
+        );
+    }
+
+    return String.valueOf((char) ('A' + bestElevator));
+}
+
+
     public void updateElevatorFloor(char elevatorId, int floor) {
 
         int index = elevatorId - 'A';

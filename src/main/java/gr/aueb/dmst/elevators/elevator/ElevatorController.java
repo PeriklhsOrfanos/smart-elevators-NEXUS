@@ -108,6 +108,26 @@ public class ElevatorController {
         }
     }
 
+
+
+public int getPort() {
+    if (server == null) {
+        throw new IllegalStateException(
+            "Elevator server has not started"
+        );
+    }
+
+    return server.getAddress().getPort();
+}
+
+public void stop() {
+    if (server != null) {
+        server.stop(0);
+        server = null;
+    }
+}
+
+
     private synchronized void handleStatus(HttpExchange exchange)
             throws IOException {
 
